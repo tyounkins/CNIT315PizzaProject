@@ -29,19 +29,13 @@ void parseNearbyStoreData(void *ptr, size_t size, size_t nmemb, void *stream){
       ID[i] = StoreID[storeIDLength-4+i];
     }
     // printf("\nID:%s\n", ID);
-
-    // printf("\nstr3:%s\n\n", str3);
-    // printf("\nHelp\n");
-
-    // printf(")
-
+    
     int count = 0; //like a boolean
     int commaCount = 0;
 
     for(int i = 0; i < length; i++){
-      // printf("Hello");
 
-      if(str3[i] == '"'){ //|| str3[i] == '{' 
+      if(str3[i] == '"'){ 
 
         if(count == 4){
           printf("\n");
@@ -49,22 +43,19 @@ void parseNearbyStoreData(void *ptr, size_t size, size_t nmemb, void *stream){
         } else {
           count++;
         }
-      
-        // printf("flag is : %d", flag);
       } else if (str3[i] == '\\' && str3[i+1] == 'n'){
         printf("\n");
         i++;
       } else if (str3[i] == 'I' && str3[i+1] == 's'){
         i+=22;
+      } else if (str3[i] == 'D' && str3[i+1] == 'e'){
+        i+=11;
       } else if (str3[i] == ':'){
         printf(": ");
       }  else if (str3[i] == ',' && commaCount <2){
         commaCount++;
-        // printf("%c", str3[i]);
       } else if (str3[i] == ',' && commaCount ==2){
-        // commaCount++;
         printf("%c", str3[i]);
-        // printf(""); //print nothing
       } else {
         printf("%c",str3[i]);
       }

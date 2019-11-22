@@ -48,6 +48,8 @@ void processOrder(){
     scanf("%c",&temp);
     scanf("%[^\n]", userPhone);
 
+    printf("Total address: %s, %s, %s, %s, %s", userAddr, userFName, userLName,userEmail, userPhone);
+
     //prompt for credit card
     printf("\nNext will prompt you for payment information \n");
     printf("\nCredit card number: ");
@@ -63,14 +65,19 @@ void processOrder(){
 }
 
 void placeOrder(){
+    char ans;
     printf("Begin your order by selecting items\n");
-    printf("Enter items you want: ");
-    scanf("%c",&temp);
+    printf("Enter items you want, press 0 to exit: ");
+    scanf("%c",&ans);
+    //this needs to be asking for peoples items one at a time, loop until they are done, creating + updating the LinkedList every time
+    //andrew will fix this part
+    /*
+    while(ans != 0){
+        scanf("%[^\n]", menuItems);
+    }
+    */
 
-    //this needs to be asking for peoples items one at a time, loop until they are done 
-    scanf("%[^\n]", menuItems);
-
-    //API code goes here??
+    //API code goes here
 }
 
 
@@ -119,18 +126,16 @@ int main () {
         scanf("%d", &choice);
 
         switch (choice){
-        case 1:
-            placeOrder();
-            processOrder();
-        break;
-
-        case 2:
-            searchNear();
-        break;
-
-        case 3:
-            displayMenu();
-            break;
+            case 1:
+                placeOrder();
+                processOrder();
+                break;
+            case 2:
+                searchNear();
+                break;
+            case 3:
+                displayMenu();
+                break;
         }
 
         printf("\nWould you like to exit? (1=yes 0=no): ");
@@ -138,6 +143,3 @@ int main () {
 
     } while (end !=1);
 }  //end of main
-
-
-

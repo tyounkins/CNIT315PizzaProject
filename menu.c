@@ -1,7 +1,6 @@
 #include <stdio.h>
 /******************************************************
-Jairius Davenport 11-12-19
-Taylor Younkins 11-13-19
+Authors: Jairius, Taylor
 *******************************************************/
 void placeOrder();
 void processOrder();
@@ -17,134 +16,128 @@ char userPhone[10];
 char userCardNum[16];
 char userCardX[5];
 char userCardSec[4];
-char userPost[10];
-char order[30];
+char userPost[10];       
+char order[30];          
 char locationAddr[30];
 char locationCity[25];
 char locationState[2];
 char locationZip[8];
-char menuItems[50];
+char menuItems[50];      
 
-int main()
-{
-    int end = 0;
+void processOrder(){
+    char temp;
 
-    int choice;
-    printf("\nHi! Welcome to the Domino's Pizza Ordering Application!\n");
-    do
-    {
-        printf("What would you like to do?\n1. Search nearest locations\n2. Display Menu\n3. Place Order");
-        printf("\nI'd like to choose option: ");
-        scanf("%d", &choice);
-
-        switch (choice)
-        {
-        case 1:
-            searchNear();
-            break;
-
-        case 2:
-            displayMenu();
-            break;
-
-        case 3:
-            placeOrder();
-            processOrder();
-            break;
-        }
-
-        printf("\nWould you like to exit? (1=yes 0=no): ");
-        scanf("%d", &end);
-    } while (end != 1);
-} //end of main
-
-void processOrder()
-{
     printf("To begin processing your order we'll need some basic information\n");
     printf("Full delivery address: ");
-    scanf("%s", userAddr);
+    scanf("%c",&temp);
+    scanf("%[^\n]", userAddr);
+
     printf("First Name: ");
-    scanf("%s", userFName);
+    scanf("%c",&temp);
+    scanf("%[^\n]", userFName);
+
     printf("Last Name: ");
-    scanf("%s", userLName);
+    scanf("%c",&temp);
+    scanf("%[^\n]", userLName);
+
     printf("E-mail address: ");
-    scanf("%s", userEmail);
+    scanf("%c",&temp);
+    scanf("%[^\n]", userEmail);
+
     printf("Phone number: ");
-    scanf("%s", userPhone);
+    scanf("%c",&temp);
+    scanf("%[^\n]", userPhone);
+
+    //prompt for credit card
     printf("\nNext will prompt you for payment information \n");
     printf("\nCredit card number: ");
-    scanf("%s", userCardNum);
+    scanf("%c",&temp);
+    scanf("%[^\n]", userCardNum);
     printf("Credit card expiration date (mm/yy): ");
     scanf("%s", userCardX);
     printf("Credit card security code or CVV (3 to 4 digit code): ");
     scanf("%s", userCardSec);
     printf("Postal code: ");
-    scanf("%s", userPost);
+    scanf("%s", userPost);  
 
 }
 
-void placeOrder()
-{
+void placeOrder(){
     printf("Begin your order by selecting items\n");
+    printf("Enter items you want: ");
+    scanf("%c",&temp);
+
+    //this needs to be asking for peoples items one at a time, loop until they are done 
+    scanf("%[^\n]", menuItems);
 
     //API code goes here??
 }
 
-void searchNear()
-{
+
+void searchNear(){
+    char temp;
+
     printf("To find a location near you, please input your location\n");
-    printf("\nStreet address: ");
-    scanf("%s", locationAddr);
+    printf("Street address: ");
+    scanf("%c",&temp);
+    scanf("%[^\n]", locationAddr);
+
     printf("\nCity: ");
-    scanf("%s", locationCity);
+    scanf("%c",&temp);
+    scanf("%[^\n]", locationCity);
+
+    //locationState
     printf("\nState: ");
-    scanf("%s", locationState);
+    scanf("%c",&temp);
+    scanf("%[^\n]", locationState);
+
     printf("\nZip: ");
+    scanf("%c",&temp);
     scanf("%s", locationZip);
 
-    printf("Your address:\nStreet: %s\nCity: %s\nState: %s\nZip: %s", locationAddr, locationCity,locationState,locationZip);
+    printf("Total address: %s, %s, %s, %s", locationAddr, locationCity, locationState,locationZip);
 
     //API code goes here??
     printf("The store closest to you is: ");
 }
 
-void displayMenu()
-{
-    printf("Here is the menu selection from your nearest store\n");
-    printf("Store_ID: %s", locationZip); //the value in location is completely a placeholder until we have the actual store ID
 
+void displayMenu(){
+    printf("Here is the menu selection from your nearest store\n");
+    printf("Store_ID: %s", locationZip);  //the value in location is completely a placeholder until we have the actual store ID
     //API code goes here??
 }
 
-//prompt using numbers
-//save every input into a string
-//error handling is for Alonzo
+int main () {
+    int end = 0; 
+    int choice;
 
-/**
-    
-    find closest {address info} can be full or partial address city and state, postal code etc...
+    printf("\nHi! Welcome to the Domino's Pizza Ordering Application!\n");
+    do {
+        printf("What would you like to do?\n1. Place Order\n2. Search nearest locations\n3. Display Menu\n");
+        printf("I'd like to choose option: ");
+        scanf("%d", &choice);
 
-    find near {address info} can be full or partial address city and state, postal code etc...
+        switch (choice){
+        case 1:
+            placeOrder();
+            processOrder();
+        break;
 
-    menu for closest {address info} can be full or partital address city and state, postal code etc...
+        case 2:
+            searchNear();
+        break;
 
-    full menu for closest {address info} can be full or partial address city and state, postal code etc...
+        case 3:
+            displayMenu();
+            break;
+        }
 
-    menu for {storeID} get store id as part of a find closest or find near request
+        printf("\nWould you like to exit? (1=yes 0=no): ");
+        scanf("%d", &end);
 
-    full menu for {storeID} get store id as part of a find closest or find near request
+    } while (end !=1);
+}  //end of main
 
-    order {comma deliminated list of item codes} 
-    example:
-    order PXC_14SCREEN, 2LSPRITE
-    what is the full address for delivery? 205 N Russel Street, West lafayette, IN, 47907
-    First Name? Taylor
-    Last Name? Younkins
-    E-Mail? tayloryounkins@gmail.com
-    Phone number? 4104561552
-    Credit Card Number? 34824347983742937
-    Credit Card Expiration? 3242
-    Credit Card Security Code or CVV (3 or 4 digit code on card)? 23423
-    Postal Code? 47906-4241
 
-    */
+

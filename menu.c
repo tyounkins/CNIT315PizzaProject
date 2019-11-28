@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "main.c"
 /******************************************************
 Authors: Jairius, Taylor
 *******************************************************/
@@ -120,24 +121,27 @@ int main () {
     int choice;
 
     printf("\nHi! Welcome to the Domino's Pizza Ordering Application!\n");
+        // postOrder();
     do {
-        printf("What would you like to do?\n1. Place Order\n2. Search nearest locations\n3. Display Menu\n");
+        printf("What would you like to do?\n1. Search for nearest store\n2. Display Menu\n3. Place Order\n");
         printf("I'd like to choose option: ");
         scanf("%d", &choice);
 
         switch (choice){
             case 1:
+                //search for nearest store
+                searchNear();
+                break;
+            case 2:
+                //display the menu for that store
+                displayMenu();
+                break;
+            case 3:
+                //place order for that store
                 placeOrder();
                 processOrder();
                 break;
-            case 2:
-                searchNear();
-                break;
-            case 3:
-                displayMenu();
-                break;
         }
-
         printf("\nWould you like to exit? (1=yes 0=no): ");
         scanf("%d", &end);
 

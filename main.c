@@ -1,6 +1,15 @@
 #include <stdio.h>
 #include <curl/curl.h>
 #include <string.h>
+#include <stdbool.h>
+
+/******************************************************
+Authors: 
+Jairius: Menu, User Input
+Taylor: API Integration, file IO
+Andrew: Structs, Struct Methods
+*******************************************************/
+
 
 void placeOrder();
 void processOrder();
@@ -26,23 +35,198 @@ char locationAddr[30];
 char locationCity[25];
 char locationState[2];
 char locationZip[8];
-char menuItems[50];      
+char menuItems[50];
+
+typedef struct Address
+{
+  char* street;
+  char* city;
+  char* state;
+  char* zip;
+} Address;
+
+Address* createAddress(char* str, char* cit, char* sta, char* z)
+{
+  Address *addr = (Address*)malloc(sizeof(Address));
+  addr->street = str;
+  printf("address: %s", addr->street);
+  addr->city = cit;
+  addr->state = sta;
+  addr->zip = z;
+  return addr;
+}
+
+void AddressToString(Address* addr)
+{
+  printf("\nUser Address: %s, %s, %s, %s", addr->street, addr->city, addr->state, addr->zip);
+  printf("\n");
+}
+
+typedef struct Store
+{
+  char* storeId;
+  Address* storeAddr;
+} Store;
+
+Store *store;
+
+Store* createStore(char* id, Address* addr)
+{
+  store = (Store*)malloc(sizeof(Store));
+  store->storeId = id;
+  store->storeAddr = addr;
+  return store;
+}
+
+void StoreToString(Store* sto)
+{
+  printf("\nStore ID: %s", sto->storeId);
+  AddressToString(sto->storeAddr);
+}
+
+typedef struct OrderItem
+{
+  char* orderItemId;
+  struct OrderItem* next;
+} OrderItem;
+
+OrderItem* createOrderItem(char* id)
+{
+  OrderItem* item = (OrderItem*)malloc(sizeof(OrderItem));
+  item->orderItemId = id;
+  item->next = NULL;
+  return item;
+}
+
+void OrderItemToString(OrderItem* item)
+{
+  printf("Order Item ID: %s", item->orderItemId);
+}
+
+typedef struct Order
+{
+  int size;
+  OrderItem* start;
+  OrderItem* end;
+} Order;
+
+Order *customerOrder;
+
+Order* createOrder(OrderItem* item)
+{
+  Order* order = (Order*)malloc(sizeof(Order));
+  order->size = 1;
+  order->start = item;
+  order->end = item;
+  return order;
+}
+
+void enqueue(Order* order, OrderItem* item)
+{
+  order->end->next = item;
+  order->end = item;
+  order->size++;
+}
+
+OrderItem* dequeue(Order* order)
+{
+  OrderItem* temp = order->start;
+  order->start = temp->next;
+  order->size--;
+  return temp;
+}
+
+int sizeOfQueue(Order* line)
+{//returns the size of the specified queue
+  return line->size;
+}
+_Bool isEmpty(Order* line)
+{//returns a true boolean if the specified queue is empty
+  if(line->size==0)
+    return true;
+  else
+    return false;
+}
+void OrderToString(Order* order)
+{
+  printf("\nOrder: \n");
+  OrderItem* current = order->start;
+  if(current == NULL)
+    printf("Error: list is empty.");
+  while(current != NULL)
+  {
+    OrderItemToString(current);
+    current = current->next;
+  }
+}
+
+typedef struct Card
+{
+  char* ccn;
+  char* experation;
+  char* cvv;
+  char* zip;
+}Card;
+
+Card *card;
+
+Card* createCard(char* cn, char* exp, char* cv, char* z)
+{
+  Card* card = (Card*)malloc(sizeof(Card));
+  card->ccn = cn;
+  card->experation = exp;
+  card->cvv = cv;
+  card->zip = z;
+  return card;
+}
+void CardToString(Card* card)
+{
+  printf("\nCARD: CCN: %s, ",card->ccn);
+  printf("Expiration: %s, ",card->experation);
+  printf("CVV: %s, ",card->cvv);
+  printf("ZIP: %s\n",card->zip);
+}
+
+typedef struct Customer
+{
+  char* firstName;
+  char* lastName;
+  Address* customerAddr;
+  char* email;
+  char* phone;
+  Card* payment;
+}Customer;
+
+Customer *customer;
+
+Customer* createCustomer(char* fName, char* lName, Address* addr, char* e, char* pho, Card* pay)
+{
+  Customer* customer = (Customer*)malloc(sizeof(Customer));
+  customer->firstName = fName;
+  customer->lastName = lName;
+  customer->customerAddr = addr;
+  customer->email = e;
+  customer->phone = pho;
+  customer->payment = pay;
+  return customer;
+}
+void CustomerToString(Customer* customer)
+{
+  printf("\nCustomer:\n");
+  printf("First name: %s, ",customer->firstName);
+  printf("Last name: %s",customer->lastName);
+  AddressToString(customer->customerAddr);
+  printf("Email: %s, ",customer->email);
+  printf("Phone: %s",customer->phone);
+  CardToString(customer->payment);
+}
 
 
 void parseNearbyStoreData(void *ptr, size_t size, size_t nmemb, void *stream){
-    // printf("whats up");
-    // printf("my string:\n %s\n\n",ptr);
     int length = 126;
     char str3[length];
 
     printf("\n\n");
-
-    // strncpy ( str3, ptr, 70 );
-    // str3[70] = '\0';   /* null characte
-    // r manually added */
-    // printf("\n\nthis is my string: %s", str3);
-
-    // char str[] ="This is a simple string";
     char * pch;
     pch = strstr (ptr,"\"StoreID");
 
@@ -57,7 +241,6 @@ void parseNearbyStoreData(void *ptr, size_t size, size_t nmemb, void *stream){
     for(int i = 0; i < 4; i++){
       ID[i] = StoreID[storeIDLength-4+i];
     }
-    // printf("\nID:%s\n", ID);
 
     int count = 0; //like a boolean
     int commaCount = 0;
@@ -90,25 +273,6 @@ void parseNearbyStoreData(void *ptr, size_t size, size_t nmemb, void *stream){
 
     }
   printf("\n");
-
-}
-
-void parseStoreMenuData(void *ptr, size_t size, size_t nmemb, void *stream){
-    printf("order menu data\n\n");
-
-    //for some reason this ptr is not receiving the entire size 
-    // printf("my string:\n %s\n\n",ptr);
-
-
-    char * pch = strstr (ptr,"PreconfiguredProducts");
-
-    printf("SUPPPPPP\n\n\n%s",pch);
-
-    int length = 1000;
-    char str3[length];
-    strncpy(str3, pch, length);
-
-    printf("\nstr3:%s\n\n", str3);
 
 }
 
@@ -209,53 +373,32 @@ void postOrder(){
     headers = curl_slist_append(headers, "Content-Type: application/json");
     curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
 
-
-    // char str[3000] = "{\"Order\":{\"Address\":{\"Street\":\"\",\"StreetNumber\":\"\",\"StreetName\":\"\",\"UnitType\":\"\",\"UnitNumber\":\"\",\"City\":\"%s\",\"Region\":\"%s\",\"PostalCode\":\"%s\"},\"Coupons\":[],\"CustomerID\":\"\",\"Email\":\"jdhfghjkdfg@gmailcom\",\"Extension\":\"\",\"FirstName\":\"taylor\",\"LastName\":\"younkins\",\"LanguageCode\":\"en\",\"OrderChannel\":\"OLO\",\"OrderID\":\"Wr_Tz29AKs5wy6b2_0oi\",\"OrderMethod\":\"Web\",\"OrderTaker\":null,\"Payments\":[{\"Type\":\"CreditCard\",\"Amount\":14.42,\"Number\":\"123123\",\"CardType\":\"\",\"Expiration\":\"3453\",\"SecurityCode\":\"123\",\"PostalCode\":\"47907\"}],\"Phone\":\"548358745\",\"Products\":[{\"AutoRemove\":false,\"Code\":\"14screen\",\"Qty\":1,\"ID\":1,\"isNew\":true,\"Options\":{\"C\":{\"1/1\":\"1\"},\"X\":{\"1/1\":\"1\"}}}],\"Market\":\"UNITED_STATES\",\"Currency\":\"USD\",\"ServiceMethod\":\"Delivery\",\"SourceOrganizationURI\":\"order.dominos.com\",\"StoreID\":\"9674\",\"Tags\":{},\"Version\":\"1.0\",\"NoCombine\":true,\"Partners\":{},\"NewUser\":true,\"metaData\":{},\"Amounts\":{\"Menu\":13.48,\"Discount\":0,\"Surcharge\":2.49,\"Adjustment\":0,\"Net\":13.48,\"Tax\":0.94,\"Tax1\":0.94,\"Tax2\":0,\"Bottle\":0,\"Customer\":14.42,\"Payment\":14.42},\"BusinessDate\":\"2019-11-20\",\"EstimatedWaitMinutes\":\"23-33\",\"PriceOrderTime\":\"2019-11-20 22:46:38\",\"IP\":\"199.204.83.184\",\"Promotions\":{\"Redeemable\":[],\"AvailablePromos\":{\"EndOfOrder\":\"8130\"},\"Valid\":[]},\"Status\":1,\"StatusItems\":[{\"Code\":\"PriceInformationRemoved\"}],\"AvailablePromos\":{\"EndOfOrder\":\"8130\"},\"PulseOrderGuid\":\"f48641ee-f9b0-42a4-9248-715f0aca23ae\",\"PriceOrderMs\":922,\"AmountsBreakdown\":{\"FoodAndBeverage\":\"10.99\",\"Adjustment\":\"0.00\",\"Surcharge\":\"0.00\",\"DeliveryFee\":\"2.49\",\"Tax\":0.94,\"Tax1\":0.94,\"Tax2\":0,\"Bottle\":0,\"Customer\":14.42,\"Savings\":\"0.00\"}}}";
-
     char *postfields = (char*)malloc(sizeof(char));
 
-    /*char userFName[25];
-      char userLName[35];
-      char userEmail[50];
-      char userPhone[10];
-      char userCardNum[16];
-      char userCardX[5];
-      char userCardSec[4];
-      */
     postfields = concat("{\"Order\":{\"Address\":{\"Street\":\"", street);
     postfields = concat(postfields, "\",\"StreetNumber\":\"\",\"StreetName\":\"\",\"UnitType\":\"\",\"UnitNumber\":\"\",\"City\":\"");
     postfields = concat(postfields, city);
-    // concat("\",\"StreetNumber\":\"\",\"StreetName\":\"\",\"UnitType\":\"\",\"UnitNumber\":\"\",\"City\":\"", city);
-    // concat("\",\"Region\":\"", state);
     postfields = concat(postfields, "\",\"Region\":\"");
     postfields = concat(postfields, state);
     
     postfields = concat(postfields, "\",\"PostalCode\":\"");
     postfields = concat(postfields, zip);
-    // concat("\",\"PostalCode\":\"", zip);
-
-    // concat("\"},\"Coupons\":[],\"CustomerID\":\"\",\"Email\":\"", userEmail);
 
     postfields = concat(postfields, "\"},\"Coupons\":[],\"CustomerID\":\"\",\"Email\":\"");
     postfields = concat(postfields, userEmail);
 
-    // concat("\",\"Extension\":\"\",\"FirstName\":\"", userFName);
     postfields = concat(postfields, "\",\"Extension\":\"\",\"FirstName\":\"");
     postfields = concat(postfields, userFName);
 
-    // concat("\",\"LastName\":\"", userLName);
     postfields = concat(postfields, "\",\"LastName\":\"");
     postfields = concat(postfields, userLName);
 
-    // concat("\",\"LanguageCode\":\"en\",\"OrderChannel\":\"OLO\",\"OrderID\":\"Wr_Tz29AKs5wy6b2_0oi\",\"OrderMethod\":\"Web\",\"OrderTaker\":null,\"Payments\":[{\"Type\":\"CreditCard\",\"Amount\":14.42,\"Number\":\"", userCardNum);
     postfields = concat(postfields, "\",\"LanguageCode\":\"en\",\"OrderChannel\":\"OLO\",\"OrderID\":\"Wr_Tz29AKs5wy6b2_0oi\",\"OrderMethod\":\"Web\",\"OrderTaker\":null,\"Payments\":[{\"Type\":\"CreditCard\",\"Amount\":14.42,\"Number\":\"");
     postfields = concat(postfields, userCardNum);
     
-    // concat(",\",\"CardType\":\"\",\"Expiration\":\"", userCardX);
     postfields = concat(postfields, ",\",\"CardType\":\"\",\"Expiration\":\"");
     postfields = concat(postfields, userCardX);
 
-    // concat("\",\"SecurityCode\":\"", userCardSec);
     postfields = concat(postfields, "\",\"SecurityCode\":\"");
     postfields = concat(postfields, userCardSec);
 
@@ -291,12 +434,8 @@ void printMenu(){
     size_t nread;
 
     FILE *readptr = fopen("menu.txt", "r");
-    // file = fopen("test.txt", "r");
-    if (readptr)
-    {
+    if (readptr) {
       while ((nread = fread(buf, 1, sizeof buf, readptr)) > 0)
-
-        // printf("%s", );
       fwrite(buf, 1, nread, stdout); 
         printf("\n");
       fclose(readptr);
@@ -305,9 +444,7 @@ void printMenu(){
     }
     printf("\n");
 }
-/******************************************************
-Authors: Jairius, Taylor
-*******************************************************/
+
 
 
 void processOrder(){
@@ -345,8 +482,6 @@ void processOrder(){
     printf("Phone number: ");
     scanf("%c",&temp);
     scanf("%[^\n]", userPhone);
-
-    // printf("Total address: %s, %s, %s, %s, %s", userAddr, userFName, userLName,userEmail, userPhone);
 
     //prompt for credit card
     printf("\nNext will prompt you for payment information \n");
@@ -402,10 +537,7 @@ void searchNear(){
     scanf("%c",&temp);
     scanf("%s", locationZip);
 
-    // printf("Total address: %s, %s, %s, %s", locationAddr, locationCity, locationState,locationZip);
-
     printf("The store closest to you is: ");
-
     findClosest();
 }
 

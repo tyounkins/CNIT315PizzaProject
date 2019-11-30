@@ -2,13 +2,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+/* Author: Andrew Burmeister */
+
 typedef struct Address
 {
   char* street;
   char* city;
   char* state;
   char* zip;
-}Address;
+} Address;
+
 Address* createAddress(char* str, char* cit, char* sta, char* z)
 {
   Address* addr = (Address*)malloc(sizeof(Address));
@@ -19,6 +22,7 @@ Address* createAddress(char* str, char* cit, char* sta, char* z)
   addr->zip = z;
   return addr;
 }
+
 void AddressToString(Address* addr)
 {
   printf("\nAddress: %s, %s, %s, %s", addr->street, addr->city, addr->state, addr->zip);
@@ -30,6 +34,7 @@ typedef struct Store
   char* storeId;
   Address* storeAddr;
 }Store;
+
 Store* createStore(char* id, Address* addr)
 {
   Store* sto = (Store*)malloc(sizeof(Store));
@@ -37,6 +42,7 @@ Store* createStore(char* id, Address* addr)
   sto->storeAddr = addr;
   return sto;
 }
+
 void StoreToString(Store* sto)
 {
   printf("\nStore ID: %s", sto->storeId);
@@ -46,8 +52,9 @@ void StoreToString(Store* sto)
 typedef struct OrderItem
 {
   char* orderItemId;
-  OrderItem* next;
-}OrderItem;
+  struct OrderItem* next;
+} OrderItem;
+
 OrderItem* createOrderItem(char* id)
 {
   OrderItem* item = (OrderItem*)malloc(sizeof(OrderItem));
@@ -55,6 +62,7 @@ OrderItem* createOrderItem(char* id)
   item->next = NULL;
   return item;
 }
+
 void OrderItemToString(OrderItem* item)
 {
   printf("Order Item ID: %s", item->orderItemId);
@@ -65,7 +73,8 @@ typedef struct Order
   int size;
   OrderItem* start;
   OrderItem* end;
-}Order;
+} Order;
+
 Order* createOrder(OrderItem* item)
 {
   Order* order = (Order*)malloc(sizeof(Order));
@@ -74,12 +83,14 @@ Order* createOrder(OrderItem* item)
   order->end = item;
   return order;
 }
+
 void enqueue(Order* order, OrderItem* item)
 {
   order->end->next = item;
   order->end = item;
   order->size++;
 }
+
 OrderItem* dequeue(Order* order)
 {
   OrderItem* temp = order->start;
@@ -180,6 +191,7 @@ typedef struct Customer
   char* phone;
   Card* payment;
 }Customer;
+
 Customer* createCustomer(char* fName, char* lName, Address* addr, char* e, char* pho, Card* pay)
 {
   Customer* customer = (Customer*)malloc(sizeof(Customer));

@@ -18,7 +18,6 @@ void searchNear();
 void displayMenu();
 void reOrder();
 char* concat( char *s1,  char *s2);
-const int a = 10, b = 100, c = 30, d = 5, e = 50;
  
 char street[50];
 char city[50];
@@ -27,11 +26,11 @@ char state[2];
 char userFName[25];
 char userLName[35];
 char userEmail[50];
-char userPhone[10];
+char userPhone[15];
 char userCardNum[16];
 char userCardX[5];
 char userCardSec[4];
-char userPost[10];          
+char userPost[10] = "47907";          
 char locationAddr[30];
 char locationCity[25];
 char locationState[2];
@@ -53,7 +52,7 @@ Address* createAddress(char* str, char* cit, char* sta, char* z)
 {
  addr = (Address*)malloc(sizeof(Address));
  addr->street = str;
- printf("address: %s", addr->street);
+//  printf("address: %s", addr->street);
  addr->city = cit;
  addr->state = sta;
  addr->zip = z;
@@ -156,7 +155,7 @@ _Bool orderIsEmpty()
 }
 void OrderToString()
 {
- printf("\nOrder: \n");
+ printf("\nOrder:");
  OrderItem* current = order->start;
  if(current == NULL)
    printf("Error: list is empty.");
@@ -430,7 +429,7 @@ void postOrder(){
      fprintf(stderr, "curl_easy_perform() failed: %s\n",
    curl_easy_strerror(res));
    } else {   
-     printf("Order placed successfully. Estimated wait time: 20 minutes. Thank you for choosing Domino's!\n");
+     printf("\nOrder placed successfully. Estimated wait time: 20 minutes. Thank you for choosing Domino's!\n");
    }
  
    curl_easy_cleanup(hnd);
@@ -439,6 +438,9 @@ void postOrder(){
  
 void printMenu(){
  
+
+
+
    printf("\n");
    #define CHUNK 2048 /* read 1024 bytes at a time */
    char buf[CHUNK];
@@ -490,14 +492,18 @@ void processOrder(){
    printf("E-mail address: ");
    scanf("%c",&temp);
    scanf("%[^\n]", userEmail);
+
+  printf("Pin number: ");
+   scanf("%c",&temp);
+   scanf("%[^\n]", userPin);
+
+  //  printf("user pin: %s", userPin);
  
    printf("Phone number: ");
    scanf("%c",&temp);
    scanf("%[^\n]", userPhone);
  
-   printf("Pin number: ");
-   scanf("%c",&temp);
-   scanf("%[^\n]", userPin);
+
  
    //prompt for credit card
    printf("\nNext will prompt you for payment information \n");
@@ -505,15 +511,19 @@ void processOrder(){
    scanf("%c",&temp);
    scanf("%[^\n]", userCardNum);
    printf("Credit card expiration date (mm/yy): ");
-   scanf("%s", userCardX);
+    scanf("%c",&temp);
+   scanf("%[^\n]", userCardX);
    printf("Credit card security code or CVV (3 to 4 digit code): ");
-   scanf("%s", userCardSec);
-   printf("Postal code: ");
-   scanf("%s", userPost);
+    scanf("%c",&temp);
+   scanf("%[^\n]", userCardSec);
+  //  printf("Postal code: ");
+  // scanf("%c",&temp);
+  //  scanf("%[^\n]", userPost);
+  // userPost = "47907";
  
    addr = createAddress(street, city, zip, state);
    card = createCard(userCardNum, userCardX, userCardSec, userPost);
-   customer = createCustomer(userFName, userLName, addr, userEmail, userPhone, userPin, card);
+   customer = createCustomer(userFName, userLName, addr, userPin, userEmail, userPhone, card);
  
    postOrder();
  
@@ -593,36 +603,36 @@ void reOrder(){
 
  int orderNum;
  char pin[4];
- int verifyPin;
- int pinNum = 0;
+ char temp;
  
   if(order==NULL){
     printf("\nNo past orders to choose from.\n");
   } else {
+      // printf("USERPIN:%s",userPin);
       printf("\nWhich order would you like to reorder?\n");
-      printf("1. %s %s", userFName, userLName);
-      OrderToString(order);
+      printf("\n1. %s %s\n", userFName, userLName);
+      OrderToString();
+      printf("\n");
       scanf("%d", &orderNum);
-      printf("PIN must be four characters in length!");
+      // printf("PIN must be four characters in length!");
       printf("Please enter in the PIN number: \n");
-      scanf("%d", &pinNum);
+      scanf("%c", &temp);
+      scanf("%[^\n]", pin);
+      // printf("pin: %s", pin);
 
-  
-      while (pinNum != 0) {
-        if (strlen(pin) != 4) {
-          printf("PIN must be four characters in length!");
-          printf("Please enter in the PIN number: \n");
-          scanf("%d", &pinNum);
-
-        } else {
-          break;
-        }
-      }
-      
-    if(verifyPin == userPin){
-      placeOrder();
+  /*
+    while (strlen(pin) != 4 ){
+        printf("PIN must be four characters in length!");
+        printf("Please enter in the PIN number: \n");
+        scanf("%s", &pin);
+    }
+      */
+    // printf("\nuserPin: %s pin: %s\n", userPin, pin);
+    if(strcmp(pin, userPin)== 0){
+      printf("\nSuccesfully verified! Posting pin.");
+      postOrder();
     } else {
-      printf("Failed to verify pin.");
+      printf("\nFailed to verify pin.");
     }
 
   }//end else

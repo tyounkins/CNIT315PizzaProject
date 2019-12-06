@@ -9,6 +9,8 @@ Authors:
 Jairius: Menu, User Input
 Taylor: API Integration, file IO
 Andrew: Structs, Struct Methods
+Alonzo: Input validation
+Lindsay: Reorder
 *******************************************************/
  
  
@@ -30,6 +32,8 @@ char userPhone[15];
 char userCardNum[16];
 char userCardX[5];
 char userCardSec[4];
+// hardcoded due to some errors with post, as of right now
+// you can only order a pizza for west lafayette
 char userPost[10] = "47907";          
 char locationAddr[30];
 char locationCity[25];
@@ -165,7 +169,7 @@ void OrderToString()
    current = current->next;
  }
 }
- 
+ // Credit Card
 typedef struct Card
 {
  char* ccn;
@@ -192,7 +196,8 @@ void CardToString(Card* card)
  printf("CVV: %s, ",card->cvv);
  printf("ZIP: %s\n",card->zip);
 }
- 
+
+// Customer object that holds customer data
 typedef struct Customer
 {
  char* firstName;
@@ -229,9 +234,10 @@ void CustomerToString(Customer* customer)
  CardToString(customer->payment);
 }
  
- 
+ /* This method is called after the HTTP GET request is sent locating nearby stores
+    Parses and outputs nearby store data */
 void parseNearbyStoreData(void *ptr, size_t size, size_t nmemb, void *stream){
-   int length = 126;
+   int length = 156;
    char str3[length];
  
    printf("\n\n");
@@ -253,7 +259,11 @@ void parseNearbyStoreData(void *ptr, size_t size, size_t nmemb, void *stream){
    int commaCount = 0;
    for(int i = 0; i < length; i++){
  
-     if(str3[i] == '"'){
+    if(str3[i] == 'H' && str3[i+1] == 'o'&& str3[i+2] == 'l'){
+      printf("");
+      i = i+100;
+    } else { 
+       if(str3[i] == '"'){
  
        if(count == 4){
          printf("\n");
@@ -277,6 +287,9 @@ void parseNearbyStoreData(void *ptr, size_t size, size_t nmemb, void *stream){
      } else {
        printf("%c",str3[i]);
      }
+    }
+
+    
  
    }
  printf("\n");
@@ -355,6 +368,7 @@ char* concat( char *s1,  char *s2)
    // printf("sjgfdldfjgdg");
    return result;
 }
+
  
 void postOrder(){
  
@@ -371,10 +385,8 @@ void postOrder(){
    headers = curl_slist_append(headers, "Content-Length: 1644");
    headers = curl_slist_append(headers, "Accept-Encoding: gzip, deflate");
    headers = curl_slist_append(headers, "Host: order.dominos.com");
-   headers = curl_slist_append(headers, "Postman-Token: a67c9853-274f-4cef-b794-52b5fd71c1c7,7ba28974-0c4b-4bde-9200-9c9ac6508952");
    headers = curl_slist_append(headers, "Cache-Control: no-cache");
    headers = curl_slist_append(headers, "Accept: */*");
-   headers = curl_slist_append(headers, "User-Agent: PostmanRuntime/7.19.0");
    headers = curl_slist_append(headers, "Referer: https://order.dominos.com/en/pages/order");
    headers = curl_slist_append(headers, "Content-Type: application/json");
    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
@@ -398,7 +410,7 @@ void postOrder(){
    postfields = concat(postfields, "\",\"LastName\":\"");
    postfields = concat(postfields, customer->lastName);
  
-   postfields = concat(postfields, "\",\"LanguageCode\":\"en\",\"OrderChannel\":\"OLO\",\"OrderID\":\"Wr_Tz29AKs5wy6b2_0oi\",\"OrderMethod\":\"Web\",\"OrderTaker\":null,\"Payments\":[{\"Type\":\"CreditCard\",\"Amount\":14.42,\"Number\":\"");
+   postfields = concat(postfields, "\",\"LanguageCode\":\"en\",\"OrderChannel\":\"OLO\",\"OrderID\":\"WHv8jUA1t0tuwm2E_8CS\",\"OrderMethod\":\"Web\",\"OrderTaker\":null,\"Payments\":[{\"Type\":\"CreditCard\",\"Amount\":14.42,\"Number\":\"");
    postfields = concat(postfields, customer->payment->ccn);
   
    postfields = concat(postfields, ",\",\"CardType\":\"\",\"Expiration\":\"");
@@ -413,9 +425,9 @@ void postOrder(){
    postfields = concat(postfields, "\"}],\"Phone\":\"");
    postfields = concat(postfields, customer->phone);
   
-   postfields = concat(postfields, "\",\"Products\":[{\"AutoRemove\":false,\"Code\":\"14screen\",\"Qty\":1,\"ID\":1,\"isNew\":true,\"Options\":{\"C\":{\"1\\/1\":\"1\"},\"X\":{\"1\\/1\":\"1\"}}}],\"Market\":\"UNITED_STATES\",\"Currency\":\"USD\",\"ServiceMethod\":\"Delivery\",\"SourceOrganizationURI\":\"order.dominos.com\",\"StoreID\":\"9674\",\"Tags\":{},\"Version\":\"1.0\",\"NoCombine\":true,\"Partners\":{},\"NewUser\":true,\"metaData\":{},\"Amounts\":{\"Menu\":13.48,\"Discount\":0,\"Surcharge\":2.49,\"Adjustment\":0,\"Net\":13.48,\"Tax\":0.94,\"Tax1\":0.94,\"Tax2\":0,\"Bottle\":0,\"Customer\":14.42,\"Payment\":14.42},\"BusinessDate\":\"2019-11-20\",\"EstimatedWaitMinutes\":\"23-33\",\"PriceOrderTime\":\"2019-11-20 22:46:38\",\"IP\":\"199.204.83.184\",\"Promotions\":{\"Redeemable\":[],\"AvailablePromos\":{\"EndOfOrder\":\"8130\"},\"Valid\":[]},\"Status\":1,\"StatusItems\":[{\"Code\":\"PriceInformationRemoved\"}],\"AvailablePromos\":{\"EndOfOrder\":\"8130\"},\"PulseOrderGuid\":\"f48641ee-f9b0-42a4-9248-715f0aca23ae\",\"PriceOrderMs\":922,\"AmountsBreakdown\":{\"FoodAndBeverage\":\"10.99\",\"Adjustment\":\"0.00\",\"Surcharge\":\"0.00\",\"DeliveryFee\":\"2.49\",\"Tax\":0.94,\"Tax1\":0.94,\"Tax2\":0,\"Bottle\":0,\"Customer\":14.42,\"Savings\":\"0.00\"}}})");
+   postfields = concat(postfields, "\",\"Products\":[{\"AutoRemove\":false,\"Code\":\"14screen\",\"Qty\":1,\"ID\":1,\"isNew\":true,\"Options\":{\"C\":{\"1\\/1\":\"1\"},\"X\":{\"1\\/1\":\"1\"}}}],\"Market\":\"UNITED_STATES\",\"Currency\":\"USD\",\"ServiceMethod\":\"Delivery\",\"SourceOrganizationURI\":\"order.dominos.com\",\"StoreID\":\"9674\",\"Tags\":{},\"Version\":\"1.0\",\"NoCombine\":true,\"Partners\":{},\"NewUser\":true,\"metaData\":{},\"Amounts\":{\"Menu\":13.48,\"Discount\":0,\"Surcharge\":2.49,\"Adjustment\":0,\"Net\":13.48,\"Tax\":0.94,\"Tax1\":0.94,\"Tax2\":0,\"Bottle\":0,\"Customer\":14.42,\"Payment\":14.42},\"BusinessDate\":\"2019-12-03\",\"EstimatedWaitMinutes\":\"23-33\",\"PriceOrderTime\":\"2019-12-03 22:46:38\",\"IP\":\"199.204.83.184\",\"Promotions\":{\"Redeemable\":[],\"AvailablePromos\":{\"EndOfOrder\":\"8130\"},\"Valid\":[]},\"Status\":1,\"StatusItems\":[{\"Code\":\"PriceInformationRemoved\"}],\"AvailablePromos\":{\"EndOfOrder\":\"8130\"},\"PulseOrderGuid\":\"f48641ee-f9b0-42a4-9248-715f0aca23ae\",\"PriceOrderMs\":922,\"AmountsBreakdown\":{\"FoodAndBeverage\":\"10.99\",\"Adjustment\":\"0.00\",\"Surcharge\":\"0.00\",\"DeliveryFee\":\"2.49\",\"Tax\":0.94,\"Tax1\":0.94,\"Tax2\":0,\"Bottle\":0,\"Customer\":14.42,\"Savings\":\"0.00\"}}}");
  
-   // printf("postfields: %s", postfields);
+   printf("postfields: %s", postfields);
  
    curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, postfields);
  
@@ -436,11 +448,11 @@ void postOrder(){
    curl_slist_free_all(headers);
 }
  
+
+/* Reads in menu from a menu.txt */ 
+/* Originally planned to be a GET request but JSON response was 10,000 lines*/
 void printMenu(){
  
-
-
-
    printf("\n");
    #define CHUNK 2048 /* read 1024 bytes at a time */
    char buf[CHUNK];
@@ -454,13 +466,13 @@ void printMenu(){
        printf("\n");
      fclose(readptr);
    } else {
-     printf("menu not found.");
+     printf("Menu not found.");
    }
    printf("\n");
 }
  
  
- 
+/* get the customer info to post order */ 
 void processOrder(){
    char temp;
  
@@ -504,7 +516,6 @@ void processOrder(){
    scanf("%[^\n]", userPhone);
  
 
- 
    //prompt for credit card
    printf("\nNext will prompt you for payment information \n");
    printf("\nCredit card number: ");
@@ -528,7 +539,8 @@ void processOrder(){
    postOrder();
  
 }
- 
+
+/* getting the items for order*/
 void placeOrder(){
  
    char *itemStr = (char*)malloc(sizeof(char));
@@ -538,7 +550,6 @@ void placeOrder(){
    printf("\nItem: ");
    // scanf("%c",&temp);
    scanf("%s", itemStr);
-   // printf("\nslkfjaklsfsdf: %s", itemStr);
  
    while(strcmp(itemStr, "exit") != 0) {
        OrderItem *item = createOrderItem(itemStr);
@@ -547,7 +558,6 @@ void placeOrder(){
            order = createOrder(item);
        } else {
            enqueue(item);
-          //  OrderToString();
        }
       itemStr = (char*)malloc(sizeof(char));
        printf("Item: ");
@@ -555,7 +565,6 @@ void placeOrder(){
    }
   
    printf("\nEnded placing order items. Moving onto Customer info.\n");
-    //API code goes here
 }
  
  
@@ -643,6 +652,8 @@ int main () {
    int end = 0;
    int choice = -1;
    char temp;
+
+   postOrder2();
  
    printf("\nHi! Welcome to the Domino's Pizza Ordering Application!\n");
    do {
